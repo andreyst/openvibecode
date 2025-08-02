@@ -1,0 +1,35 @@
+---
+- name: Update system packages
+  dnf:
+    name: "*"
+    state: latest
+  tags: base
+
+- name: Install essential system packages
+  dnf:
+    name:
+      - curl
+      - wget
+      - vim
+      - htop
+      - unzip
+      - tar
+      - gzip
+      - which
+      - net-tools
+      - bind-utils  # dig, nslookup
+      - lsof
+      - psmisc     # pstree, killall
+      - procps-ng  # ps, top
+    state: present
+  tags: base
+
+
+- name: Set up workspace directory
+  file:
+    path: "{{ workspace_dir }}"
+    state: directory
+    owner: "{{ ec2_user }}"
+    group: "{{ ec2_user }}"
+    mode: '0755'
+  tags: base

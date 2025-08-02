@@ -1,0 +1,53 @@
+---
+- name: Create certbot virtual environment
+  pip:
+    name: pip
+    virtualenv: /opt/certbot
+    virtualenv_python: python3
+    state: present
+  tags: applications
+
+- name: Install certbot and plugins in virtual environment
+  pip:
+    name:
+      - certbot==4.1.1
+      - certbot-dns-route53==4.1.1
+      - certbot-nginx==4.1.1
+    virtualenv: /opt/certbot
+    state: present
+  tags: applications
+
+- name: Create symlink for certbot command
+  file:
+    src: /opt/certbot/bin/certbot
+    dest: /usr/local/bin/certbot
+    state: link
+  tags: applications
+
+- name: Add cron job for automatic certbot renewal
+  cron:
+    name: "certbot renewal"
+    minute: "0"
+    hour: "0,12"
+    user: root
+    job: "/opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && /opt/certbot/bin/certbot renew -q"
+  tags: applications
+
+- name: Add monthly cron job for certbot upgrade
+  cron:
+    name: "certbot upgrade"
+    minute: "0"
+    hour: "3"
+    day: "1"
+    user: root
+    job: "/opt/certbot/bin/pip install --upgrade certbot certbot-dns-route53 certbot-nginx"
+  tags: applications
+
+- name: Create certbot log directory
+  file:
+    path: /var/log/certbot
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags: applications

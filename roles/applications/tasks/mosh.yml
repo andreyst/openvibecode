@@ -1,0 +1,46 @@
+---
+- name: Download and compile mosh
+  block:
+    - name: Clone mosh repository
+      git:
+        repo: https://github.com/mobile-shell/mosh.git
+        dest: "{{ workspace_dir }}/mosh"
+        force: yes
+      become_user: "{{ ec2_user }}"
+
+    - name: Install mosh build dependencies
+      dnf:
+        name:
+          - protobuf-devel
+          - ncurses-devel
+          - zlib-devel
+          - openssl-devel
+          - perl
+          - pkgconfig
+        state: present
+
+    - name: Run autogen for mosh
+      shell: ./autogen.sh
+      args:
+        chdir: "{{ workspace_dir }}/mosh"
+        creates: "{{ workspace_dir }}/mosh/configure"
+      become_user: "{{ ec2_user }}"
+
+    - name: Configure mosh build
+      shell: ./configure --prefix=/usr/local
+      args:
+        chdir: "{{ workspace_dir }}/mosh"
+        creates: "{{ workspace_dir }}/mosh/Makefile"
+      become_user: "{{ ec2_user }}"
+
+    - name: Compile mosh
+      make:
+        chdir: "{{ workspace_dir }}/mosh"
+        jobs: 4
+      become_user: "{{ ec2_user }}"
+
+    - name: Install mosh
+      make:
+        chdir: "{{ workspace_dir }}/mosh"
+        target: install
+  tags: applications

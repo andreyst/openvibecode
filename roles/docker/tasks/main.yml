@@ -1,0 +1,28 @@
+---
+- name: Install Docker
+  dnf:
+    name: docker
+    state: present
+  tags: docker
+
+- name: Add ec2-user to docker group
+  user:
+    name: "{{ ec2_user }}"
+    groups: docker
+    append: yes
+  tags: docker
+
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+  tags: docker
+
+- name: Install Docker Compose
+  pip:
+    name: docker-compose
+    executable: pip3
+    state: present
+  tags: docker
+

@@ -1,0 +1,64 @@
+---
+- name: Download NVM installation script
+  get_url:
+    url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh
+    dest: /tmp/nvm-install.sh
+    mode: '0755'
+  become_user: "{{ ec2_user }}"
+  tags: development
+
+- name: Install NVM
+  shell: /tmp/nvm-install.sh
+  become_user: "{{ ec2_user }}"
+  args:
+    creates: "/home/{{ ec2_user }}/.nvm/nvm.sh"
+  tags: development
+
+- name: Source NVM and install Node.js
+  shell: |
+    export NVM_DIR="/home/{{ ec2_user }}/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm install {{ node_version }}
+    nvm use {{ node_version }}
+    nvm alias default {{ node_version }}
+  become_user: "{{ ec2_user }}"
+  args:
+    executable: /bin/bash
+    creates: "/home/{{ ec2_user }}/.nvm/versions/node/v{{ node_version }}"
+  tags: development
+
+- name: Configure bashrc with NVM
+  blockinfile:
+    path: "/home/{{ ec2_user }}/.bashrc"
+    block: |
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - NVM"
+    create: yes
+  become_user: "{{ ec2_user }}"
+  tags: development
+
+- name: Set up PATH in bashrc
+  blockinfile:
+    path: "/home/{{ ec2_user }}/.bashrc"
+    block: |
+      if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
+      then
+          PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+      fi
+      export PATH
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - PATH"
+    create: yes
+  become_user: "{{ ec2_user }}"
+  tags: development
+
+- name: Install global npm packages
+  shell: |
+    export NVM_DIR="/home/{{ ec2_user }}/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    npm install -g typescript ts-node nodemon
+  become_user: "{{ ec2_user }}"
+  args:
+    executable: /bin/bash
+  tags: development

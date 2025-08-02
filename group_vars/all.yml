@@ -1,0 +1,28 @@
+---
+# Global variables for all hosts
+ec2_user: "ec2-user"
+node_version: "24.4.1"
+workspace_dir: "/home/{{ ec2_user }}/workplace"
+
+# Docker configuration
+docker_compose_version: "2.21.0"
+
+# Application configuration
+apps:
+  dictate_cc:
+    repo_url: "https://github.com/your-repo/dictate-cc.git"  # Update with actual repo
+    ssl_cert_path: "{{ workspace_dir }}/dictate-cc/ssl"
+    
+  mosh:
+    repo_url: "https://github.com/mobile-shell/mosh.git"
+    install_prefix: "/usr/local"
+
+# Network configuration
+listening_ports:
+  - 22    # SSH
+  - 80    # HTTP
+  - 3000  # App frontend
+  - 3001  # App backend  
+  - 3443  # HTTPS alternate
+  - 5432  # PostgreSQL
+  - 8080  # Test server

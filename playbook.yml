@@ -1,0 +1,19 @@
+---
+- name: Setup Amazon Linux 2023 Development Environment
+  hosts: all
+  become: yes
+  vars:
+    ec2_user: "ec2-user"
+    node_version: "24.4.1"
+    workspace_dir: "/home/{{ ec2_user }}/workplace"
+
+  tasks:
+    # Import role tasks
+    - import_tasks: roles/base-system/tasks/main.yml
+    - import_tasks: roles/packages/tasks/main.yml
+    - import_tasks: roles/development/tasks/main.yml
+    - import_tasks: roles/docker/tasks/main.yml
+    - import_tasks: roles/applications/tasks/main.yml
+
+  handlers:
+    - import_tasks: roles/common/handlers/main.yml

@@ -1,0 +1,110 @@
+---
+- name: Install Development Tools group
+  dnf:
+    name: "@Development Tools"
+    state: present
+  tags: packages
+
+- name: Install core development packages
+  dnf:
+    name:
+      - git
+      - python3
+      - python3-pip
+      - python3-devel
+      - make
+      - gcc
+      - gcc-c++
+      - autoconf
+      - automake
+      - libtool
+      - bison
+      - flex
+      - protobuf-devel
+      - protobuf-compiler
+      - libasan
+    state: present
+  tags: packages
+
+- name: Install X11 and GUI packages for Chrome support
+  dnf:
+    name:
+      - gtk3
+      - gtk3-devel
+      - libX11
+      - libX11-devel
+      - libXcomposite
+      - libXcomposite-devel
+      - libXcursor
+      - libXcursor-devel
+      - libXdamage
+      - libXdamage-devel
+      - libXext
+      - libXext-devel
+      - libXfixes
+      - libXfixes-devel
+      - libXi
+      - libXi-devel
+      - libXinerama
+      - libXinerama-devel
+      - libXrandr
+      - libXrandr-devel
+      - libXrender
+      - libXrender-devel
+      - libXtst
+      - libXtst-devel
+      - at-spi2-atk
+      - at-spi2-atk-devel
+      - at-spi2-core
+      - at-spi2-core-devel
+      - atk
+      - atk-devel
+      - cairo
+      - cairo-devel
+      - cairo-gobject
+      - cairo-gobject-devel
+      - fontconfig
+      - fontconfig-devel
+      - freetype
+      - freetype-devel
+      - gdk-pixbuf2
+      - gdk-pixbuf2-devel
+      - glib2
+      - glib2-devel
+      - glibc-devel
+      - harfbuzz
+      - harfbuzz-devel
+      - libdrm
+      - libepoxy
+      - libepoxy-devel
+      - libglvnd-devel
+      - libglvnd-core-devel
+      - libglvnd-egl
+      - libglvnd-gles
+      - libglvnd-glx
+      - libglvnd-opengl
+      - mesa-libEGL
+      - mesa-libGL
+      - mesa-libgbm
+      - mesa-libglapi
+      - pango
+      - pango-devel
+      - pixman
+      - pixman-devel
+      - xdg-utils
+      - vulkan-loader
+      - libgbm
+    state: present
+  tags: packages
+
+- name: Install additional utility packages
+  dnf:
+    name:
+      - tmux
+      - jq
+      - tree
+      - rsync
+      - nano
+      - screen
+    state: present
+  tags: packages
