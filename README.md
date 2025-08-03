@@ -20,8 +20,19 @@ This directory also contains everything needed to set up a virtual microphone th
 ```
 
 ### Ansible Playbook
+
+**Main Playbook (includes virtual microphone setup):**
 ```bash
-# Run the Ansible virtual microphone playbook
+# Run the complete development environment setup (includes virtual microphone)
+ansible-playbook -i inventory.yml playbook.yml
+
+# Run with custom audio file
+ansible-playbook -i inventory.yml playbook.yml -e audio_file_name=your-audio.wav
+```
+
+**Standalone Virtual Microphone Playbook:**
+```bash
+# Run only the virtual microphone setup
 ansible-playbook -i inventory.yml virtual-mic-playbook.yml
 
 # Or run locally
@@ -97,6 +108,12 @@ pactl unload-module module-remap-source
 - **dictate-cc**: Full-stack dictation application
 - **test-web**: Chrome testing environment
 
+### Virtual Microphone
+- **PulseAudio** and **ALSA** audio utilities
+- Virtual speaker and microphone devices for audio looping
+- Automated audio file playback through virtual microphone
+- Compatible with any recording software that can access system audio devices
+
 ## Usage
 
 ### 1. Setup Target Host
@@ -140,7 +157,7 @@ ansible-playbook -i local_inventory playbook.yml
 
 **Remote Execution** - Standard remote deployment:
 ```bash
-# Run the complete setup
+# Run the complete setup (includes virtual microphone)
 ansible-playbook -i inventory.yml playbook.yml
 
 # Run specific parts only
@@ -148,6 +165,10 @@ ansible-playbook -i inventory.yml playbook.yml --tags "base,packages"
 ansible-playbook -i inventory.yml playbook.yml --tags "development"
 ansible-playbook -i inventory.yml playbook.yml --tags "docker"
 ansible-playbook -i inventory.yml playbook.yml --tags "applications"
+ansible-playbook -i inventory.yml playbook.yml --tags "virtual-microphone"
+
+# Skip virtual microphone setup if not needed
+ansible-playbook -i inventory.yml playbook.yml --skip-tags "virtual-microphone"
 ```
 
 **Verbose Output** - For debugging:

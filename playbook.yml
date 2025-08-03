@@ -6,6 +6,9 @@
     ec2_user: "ec2-user"
     node_version: "24.4.1"
     workspace_dir: "/home/{{ ec2_user }}/workplace"
+    virtual_speaker: "virtual_speaker"
+    virtual_mic: "virtual_microphone"
+    audio_file_name: "speech.wav"
 
   tasks:
     # Import role tasks
@@ -14,6 +17,7 @@
     - import_tasks: roles/development/tasks/main.yml
     - import_tasks: roles/docker/tasks/main.yml
     - import_tasks: roles/applications/tasks/main.yml
+    - import_tasks: roles/virtual-microphone/tasks/main.yml
 
   handlers:
     - import_tasks: roles/common/handlers/main.yml
