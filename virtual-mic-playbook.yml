@@ -1,0 +1,13 @@
+---
+- name: Virtual Microphone Setup Playbook
+  hosts: all
+  become: yes
+  vars:
+    ec2_user: "ec2-user"
+    workspace_dir: "/home/{{ ec2_user }}/workplace"
+    virtual_speaker: "virtual_speaker"
+    virtual_mic: "virtual_microphone" 
+    audio_file_name: "speech.wav"
+
+  tasks:
+    - import_tasks: roles/virtual-microphone/tasks/main.yml

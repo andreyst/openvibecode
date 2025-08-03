@@ -1,0 +1,108 @@
+---
+- name: Virtual Microphone Setup
+  debug:
+    msg: "🎤 Virtual Microphone Setup Playbook"
+
+- name: Check if audio file exists
+  stat:
+    path: "{{ audio_file }}"
+  register: audio_file_stat
+  failed_when: not audio_file_stat.stat.exists
+  vars:
+    audio_file: "{{ workspace_dir }}/{{ audio_file_name | default('speech.wav') }}"
+
+- name: Display audio file being used
+  debug:
+    msg: "📁 Audio file: {{ audio_file }}"
+  vars:
+    audio_file: "{{ workspace_dir }}/{{ audio_file_name | default('speech.wav') }}"
+
+- name: Install required packages on RHEL/CentOS/Amazon Linux
+  dnf:
+    name:
+      - pulseaudio-utils
+      - alsa-utils
+      - alsa-plugins-pulseaudio
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install required packages on Debian/Ubuntu
+  apt:
+    name:
+      - pulseaudio-utils
+      - alsa-utils
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Clean up existing virtual devices
+  shell: |
+    pactl unload-module module-null-sink 2>/dev/null || true
+    pactl unload-module module-remap-source 2>/dev/null || true
+    pkill -f "virtual-mic-loop" 2>/dev/null || true
+  become_user: "{{ ec2_user }}"
+  ignore_errors: yes
+
+- name: Create virtual speaker (null sink)
+  shell: pactl load-module module-null-sink sink_name={{ virtual_speaker }} sink_properties=device.description="Virtual_Speaker"
+  become_user: "{{ ec2_user }}"
+  register: sink_module_result
+
+- name: Create virtual microphone (remap source)
+  shell: pactl load-module module-remap-source master={{ virtual_speaker }}.monitor source_name={{ virtual_mic }} source_properties=device.description="Virtual_Microphone"
+  become_user: "{{ ec2_user }}"
+  register: source_module_result
+
+- name: Display virtual devices created
+  debug:
+    msg: 
+      - "Created virtual speaker (module {{ sink_module_result.stdout }})"
+      - "Created virtual microphone (module {{ source_module_result.stdout }})"
+
+- name: Create audio loop script
+  template:
+    src: virtual-mic-loop.sh.j2
+    dest: "{{ workspace_dir }}/virtual-mic-loop.sh"
+    mode: '0755'
+    owner: "{{ ec2_user }}"
+    group: "{{ ec2_user }}"
+
+- name: Start audio loop in background
+  shell: nohup {{ workspace_dir }}/virtual-mic-loop.sh > {{ workspace_dir }}/virtual-mic-loop.log 2>&1 &
+  become_user: "{{ ec2_user }}"
+  register: loop_process
+
+- name: Wait for audio to start
+  pause:
+    seconds: 3
+
+- name: Verify setup - list virtual audio sources
+  shell: pactl list sources short | grep -E "(virtual|Virtual)" || echo "No virtual sources found"
+  become_user: "{{ ec2_user }}"
+  register: virtual_sources
+
+- name: Display verification results
+  debug:
+    msg: "Available virtual audio sources: {{ virtual_sources.stdout_lines }}"
+
+- name: Display setup completion summary
+  debug:
+    msg:
+      - "🎉 Virtual Microphone Setup Complete!"
+      - "======================================"
+      - "📋 Summary:"
+      - "   • Virtual speaker: {{ virtual_speaker }}"
+      - "   • Virtual microphone: {{ virtual_mic }}"
+      - "   • Audio file: {{ workspace_dir }}/{{ audio_file_name | default('speech.wav') }}"
+      - ""
+      - "🔧 Usage:"
+      - "   # Record 20 seconds from virtual mic:"
+      - "   arecord -D pulse -f cd -d 20 test-recording.wav"
+      - ""
+      - "   # List audio devices:"
+      - "   pactl list sources short"
+      - ""
+      - "🛑 To stop:"
+      - "   pkill -f virtual-mic-loop"
+      - "   pactl unload-module {{ sink_module_result.stdout }}"
+      - "   pactl unload-module {{ source_module_result.stdout }}"

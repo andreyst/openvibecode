@@ -2,6 +2,72 @@
 
 This Ansible playbook recreates the complete development environment found on your Amazon Linux 2023 system.
 
+---
+
+# Virtual Microphone Setup
+
+This directory also contains everything needed to set up a virtual microphone that loops prerecorded audio.
+
+## Quick Start
+
+### Shell Script (Original)
+```bash
+# Run the playbook (uses speech.wav by default)
+./virtual-mic-playbook.sh
+
+# Or specify your own audio file
+./virtual-mic-playbook.sh your-audio.wav
+```
+
+### Ansible Playbook
+```bash
+# Run the Ansible virtual microphone playbook
+ansible-playbook -i inventory.yml virtual-mic-playbook.yml
+
+# Or run locally
+ansible-playbook -i "localhost," virtual-mic-playbook.yml --connection=local
+
+# Specify custom audio file
+ansible-playbook -i inventory.yml virtual-mic-playbook.yml -e audio_file_name=your-audio.wav
+```
+
+## What it does
+
+1. **Installs** required audio packages (PulseAudio, ALSA)
+2. **Creates** virtual speaker and microphone devices  
+3. **Loops** your audio file through the virtual microphone
+4. **Provides** a virtual mic that any recording tool can use
+
+## Recording from Virtual Mic
+
+```bash
+# Record 20 seconds using arecord
+arecord -D pulse -f cd -d 20 recording.wav
+
+# Record using other tools
+parecord --device=virtual_microphone output.wav
+```
+
+## Virtual Mic Files
+
+- `speech.wav` - Sample "one two three" audio file
+- `virtual-mic-playbook.sh` - Original shell script setup
+- `virtual-mic-playbook.yml` - Ansible playbook version
+- `roles/virtual-microphone/` - Ansible role for virtual microphone setup
+- `virtual-mic-loop.sh` - Created by playbook to loop audio
+- `virtual-mic-loop.log` - Audio loop process log
+
+## Virtual Mic Cleanup
+
+```bash
+# Stop the virtual microphone
+pkill -f virtual-mic-loop
+pactl unload-module module-null-sink
+pactl unload-module module-remap-source
+```
+
+---
+
 ## What This Playbook Installs
 
 ### Base System
@@ -137,13 +203,18 @@ After running the playbook:
 │   │   └── tasks/main.yml
 │   ├── docker/
 │   │   └── tasks/main.yml
-│   └── applications/
-│       └── tasks/
-│           ├── main.yml      # Imports all app tasks
-│           ├── chrome.yml    # Chrome installation
-│           ├── mosh.yml      # Mosh compilation
-│           └── certbot.yml   # SSL certificate management
-└── run-playbook.sh      # Convenience script
+│   ├── applications/
+│   │   └── tasks/
+│   │       ├── main.yml      # Imports all app tasks
+│   │       ├── chrome.yml    # Chrome installation
+│   │       ├── mosh.yml      # Mosh compilation
+│   │       └── certbot.yml   # SSL certificate management
+│   └── virtual-microphone/
+│       ├── tasks/main.yml    # Virtual microphone setup
+│       ├── templates/virtual-mic-loop.sh.j2
+│       └── vars/main.yml
+├── run-playbook.sh      # Convenience script
+└── virtual-mic-playbook.yml # Virtual microphone standalone playbook
 ```
 
 ## Directory Structure After Installation

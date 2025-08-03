@@ -1,0 +1,4 @@
+---
+virtual_speaker: "virtual_speaker"
+virtual_mic: "virtual_microphone"
+audio_file_name: "speech.wav"

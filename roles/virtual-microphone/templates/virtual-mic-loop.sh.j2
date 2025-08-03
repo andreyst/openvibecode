@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "🔄 Starting audio loop for virtual microphone..."
+while true; do
+    paplay --device={{ virtual_speaker }} "{{ workspace_dir }}/{{ audio_file_name | default('speech.wav') }}"
+    sleep 0.5
+done
