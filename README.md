@@ -364,6 +364,3 @@ export AWS_SECRET_ACCESS_KEY=your_secret
 - SSH access remains configured as per EC2 defaults
 - No firewall rules are modified - configure as needed for your environment
 
-## License
-
-This playbook is provided as-is for educational and development purposes.
