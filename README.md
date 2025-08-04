@@ -61,12 +61,16 @@ parecord --device=virtual_microphone output.wav
 
 ## Virtual Mic Files
 
-- `speech.wav` - Sample "one two three" audio file
+- `roles/virtual-microphone/files/speech.wav` - Sample "one two three" audio file
 - `virtual-mic-playbook.sh` - Original shell script setup
 - `virtual-mic-playbook.yml` - Ansible playbook version
 - `roles/virtual-microphone/` - Ansible role for virtual microphone setup
-- `virtual-mic-loop.sh` - Created by playbook to loop audio
-- `virtual-mic-loop.log` - Audio loop process log
+  - `tasks/main.yml` - Main automation tasks
+  - `templates/virtual-mic-loop.sh.j2` - Audio loop script template
+  - `vars/main.yml` - Default variables
+  - `files/speech.wav` - Default audio file
+- `virtual-mic-loop.sh` - Created by playbook to loop audio (in workspace)
+- `virtual-mic-loop.log` - Audio loop process log (in workspace)
 
 ## Virtual Mic Cleanup
 
@@ -233,7 +237,8 @@ After running the playbook:
 │   └── virtual-microphone/
 │       ├── tasks/main.yml    # Virtual microphone setup
 │       ├── templates/virtual-mic-loop.sh.j2
-│       └── vars/main.yml
+│       ├── vars/main.yml
+│       └── files/speech.wav  # Default audio file
 ├── run-playbook.sh      # Convenience script
 └── virtual-mic-playbook.yml # Virtual microphone standalone playbook
 ```

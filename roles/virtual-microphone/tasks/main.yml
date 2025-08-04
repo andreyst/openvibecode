@@ -4,6 +4,16 @@
     msg: "🎤 Virtual Microphone Setup Playbook"
   tags: virtual-microphone
 
+- name: Copy default audio file to workspace
+  copy:
+    src: "{{ audio_file_name | default('speech.wav') }}"
+    dest: "{{ workspace_dir }}/{{ audio_file_name | default('speech.wav') }}"
+    owner: "{{ ec2_user }}"
+    group: "{{ ec2_user }}"
+    mode: '0644'
+  when: audio_file_name is not defined or audio_file_name == 'speech.wav'
+  tags: virtual-microphone
+
 - name: Check if audio file exists
   stat:
     path: "{{ audio_file }}"
