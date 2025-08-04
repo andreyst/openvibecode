@@ -20,26 +20,18 @@ This directory also contains everything needed to set up a virtual microphone th
 ```
 
 ### Ansible Playbook
-
-**Main Playbook (includes virtual microphone setup):**
 ```bash
 # Run the complete development environment setup (includes virtual microphone)
 ansible-playbook -i inventory.yml playbook.yml
 
 # Run with custom audio file
 ansible-playbook -i inventory.yml playbook.yml -e audio_file_name=your-audio.wav
-```
 
-**Standalone Virtual Microphone Playbook:**
-```bash
 # Run only the virtual microphone setup
-ansible-playbook -i inventory.yml virtual-mic-playbook.yml
+ansible-playbook -i inventory.yml playbook.yml --tags "virtual-microphone"
 
-# Or run locally
-ansible-playbook -i "localhost," virtual-mic-playbook.yml --connection=local
-
-# Specify custom audio file
-ansible-playbook -i inventory.yml virtual-mic-playbook.yml -e audio_file_name=your-audio.wav
+# Skip virtual microphone setup
+ansible-playbook -i inventory.yml playbook.yml --skip-tags "virtual-microphone"
 ```
 
 ## What it does
@@ -63,7 +55,6 @@ parecord --device=virtual_microphone output.wav
 
 - `roles/virtual-microphone/files/speech.wav` - Sample "one two three" audio file
 - `virtual-mic-playbook.sh` - Original shell script setup
-- `virtual-mic-playbook.yml` - Ansible playbook version
 - `roles/virtual-microphone/` - Ansible role for virtual microphone setup
   - `tasks/main.yml` - Main automation tasks
   - `templates/virtual-mic-loop.sh.j2` - Audio loop script template
@@ -239,8 +230,7 @@ After running the playbook:
 │       ├── templates/virtual-mic-loop.sh.j2
 │       ├── vars/main.yml
 │       └── files/speech.wav  # Default audio file
-├── run-playbook.sh      # Convenience script
-└── virtual-mic-playbook.yml # Virtual microphone standalone playbook
+└── run-playbook.sh      # Convenience script
 ```
 
 ## Directory Structure After Installation
