@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "serverless": "^4.21.1",
+    "serverless-python-requirements": "^6.1.2",
+    "serverless-wsgi": "^3.1.0"
+  }
+}

@@ -1,0 +1,70 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SSMParameterStorePasswordManagement",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:PutParameter",
+                "ssm:DeleteParameter",
+                "ssm:DescribeParameters",
+                "ssm:AddTagsToResource"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:parameter/passwords/*"
+            ]
+        },
+        {
+            "Sid": "SSMParameterStoreList",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeParameters"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "KMSDecryptForSecureString",
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Resource": [
+                "arn:aws:kms:*:*:key/*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "kms:ViaService": "ssm.*.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Sid": "EC2InstanceStatusMonitoring",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeInstances",
+                "ec2:DescribeInstanceStatus",
+                "ec2:DescribeInstanceAttribute"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "EC2InstanceHibernationControl",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StopInstances",
+                "ec2:StartInstances",
+                "ec2:RebootInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:instance/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "ec2:ResourceTag/Environment": "openvibecode"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SSM Login App{% endblock %}
+
+{% block header %}Welcome, {{ username }}!{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <p>You have successfully logged in to the SSM Login application.</p>
+    <p>Your credentials were validated against AWS SSM Parameter Store.</p>
+    
+    {% if instance_status and instance_status.auto_started %}
+    <div style="margin-top: 20px; padding: 15px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; color: #0c5460;">
+        <strong>🚀 Instance Auto-Started:</strong> The control instance was stopped and has been automatically started for you.
+    </div>
+    {% endif %}
+    
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+    </div>
+</div>
+
+{% if instance_status %}
+<div style="margin-top: 40px; padding: 20px; background-color: #f8f9fa; border-radius: 4px;">
+    <h3>Control Instance Status</h3>
+    {% if instance_status.error %}
+        <div style="color: #721c24; background-color: #f8d7da; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+            <strong>Error:</strong> {{ instance_status.error }}
+        </div>
+    {% else %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+            <div>
+                <strong>Instance ID:</strong> {{ instance_status.instance_id }}<br>
+                <strong>State:</strong> 
+                {% if instance_status.state == 'running' %}
+                    <span style="color: #155724; font-weight: bold;">{{ instance_status.state }}</span>
+                {% elif instance_status.state == 'stopped' %}
+                    <span style="color: #721c24; font-weight: bold;">{{ instance_status.state }}</span>
+                {% elif instance_status.state == 'pending' %}
+                    <span style="color: #856404; font-weight: bold;">{{ instance_status.state }} (auto-starting...)</span>
+                {% else %}
+                    <span style="color: #0c5460; font-weight: bold;">{{ instance_status.state }}</span>
+                {% endif %}<br>
+                <strong>Instance Type:</strong> {{ instance_status.instance_type }}<br>
+                <strong>Launch Time:</strong> {{ instance_status.launch_time.strftime('%Y-%m-%d %H:%M:%S UTC') if instance_status.launch_time != 'N/A' else 'N/A' }}
+            </div>
+            <div>
+                <strong>Private IP:</strong> {{ instance_status.private_ip }}<br>
+                <strong>Public IP:</strong> {{ instance_status.public_ip }}<br>
+                <strong>System Status:</strong> 
+                {% if instance_status.system_status == 'ok' %}
+                    <span style="color: #155724;">{{ instance_status.system_status }}</span>
+                {% elif instance_status.system_status == 'impaired' %}
+                    <span style="color: #721c24;">{{ instance_status.system_status }}</span>
+                {% else %}
+                    <span style="color: #6c757d;">{{ instance_status.system_status }}</span>
+                {% endif %}<br>
+                <strong>Instance Status:</strong> 
+                {% if instance_status.instance_status == 'ok' %}
+                    <span style="color: #155724;">{{ instance_status.instance_status }}</span>
+                {% elif instance_status.instance_status == 'impaired' %}
+                    <span style="color: #721c24;">{{ instance_status.instance_status }}</span>
+                {% else %}
+                    <span style="color: #6c757d;">{{ instance_status.instance_status }}</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% elif control_instance_id %}
+<div style="margin-top: 40px; padding: 20px; background-color: #fff3cd; border-radius: 4px; border: 1px solid #ffeaa7;">
+    <h3>Control Instance Status</h3>
+    <p style="color: #856404; margin: 0;">
+        <strong>Instance ID configured:</strong> {{ control_instance_id }}<br>
+        <strong>Status:</strong> Unable to retrieve status (check permissions)
+    </p>
+</div>
+{% else %}
+<div style="margin-top: 40px; padding: 20px; background-color: #f8d7da; border-radius: 4px; border: 1px solid #f5c6cb;">
+    <h3>Control Instance Status</h3>
+    <p style="color: #721c24; margin: 0;">
+        <strong>Error:</strong> No control instance ID configured<br>
+        <em>Set CONTROL_INSTANCE_ID environment variable</em>
+    </p>
+</div>
+{% endif %}
+
+<div style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 4px;">
+    <h3>Application Info</h3>
+    <ul style="text-align: left;">
+        <li>Authentication: AWS SSM Parameter Store</li>
+        <li>Session: Active</li>
+        <li>User: {{ username }}</li>
+        <li>Region: {{ instance_status.region if instance_status else 'N/A' }}</li>
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} - SSM Login App{% endblock %}
+
+{% block header %}Error {{ error_code }}{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>{{ error_message }}</h2>
+    <p>Something went wrong while processing your request.</p>
+    
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('index') }}" class="btn">Go Home</a>
+    </div>
+</div>
+{% endblock %}

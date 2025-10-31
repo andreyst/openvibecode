@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SSM Login App{% endblock %}
+
+{% block header %}Login{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required autofocus>
+    </div>
+    
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    
+    <button type="submit" class="btn">Login</button>
+</form>
+
+<div style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">
+    <p>Enter your credentials to access the application.</p>
+    <p>Credentials are validated against AWS SSM Parameter Store.</p>
+</div>
+{% endblock %}

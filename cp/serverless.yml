@@ -1,0 +1,65 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: anstol
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: openvibecode
+service: ssm-login-app
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  
+  environment:
+    FLASK_SECRET_KEY: ${env:FLASK_SECRET_KEY, 'change-me-in-production'}
+    SSM_PREFIX: ${env:SSM_PREFIX, '/passwords/'}
+    AWS_DEFAULT_REGION: ${self:provider.region}
+    CONTROL_INSTANCE_ID: ${env:CONTROL_INSTANCE_ID, ''}
+  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: 
+        - "arn:aws:ssm:${self:provider.region}:*:parameter${env:SSM_PREFIX, '/passwords/'}*"
+    - Effect: Allow
+      Action:
+        - kms:Decrypt
+      Resource: "*"
+      Condition:
+        StringLike:
+          "kms:ViaService": "ssm.*.amazonaws.com"
+    - Effect: Allow
+      Action:
+        - ec2:DescribeInstances
+        - ec2:DescribeInstanceStatus
+      Resource: "*"
+
+functions:
+  app:
+    handler: app.lambda_handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+    timeout: 30
+
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+
+custom:
+  wsgi:
+    app: app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+    slim: true
+    strip: false
